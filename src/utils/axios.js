@@ -60,13 +60,30 @@ instance.interceptors.response.use(
 // };
 
 // 導出一個函數來取消特定 URL 和方法的请求
-export const cancelRequest = (url, method) => {
-  const key = `${url}@${method.toUpperCase()}`;
-  if (abortControllers.has(key)) {
-      const controller = abortControllers.get(key);
-      controller.abort();
-      abortControllers.delete(key);
-  }
+// export const cancelRequest = (url, method) => {
+//   const key = `${url}@${method.toUpperCase()}`;
+//   if (abortControllers.has(key)) {
+//       const controller = abortControllers.get(key);
+//       controller.abort();
+//       abortControllers.delete(key);
+//   }
+// };
+
+// 導出一個函數來取消特定 URL 和方法的请求
+export const cancelRequest = (url, method = null) => {
+  abortControllers.forEach((controller, key) => {
+      if (method) {
+          if (key === `${url}@${method.toUpperCase()}`) {
+              controller.abort();
+              abortControllers.delete(key);
+          }
+      } else {
+          if (key.startsWith(url + '@')) {
+              controller.abort();
+              abortControllers.delete(key);
+          }
+      }
+  });
 };
 
 // 導出一個函數用於取消所有請求
@@ -76,5 +93,8 @@ export const cancelAllRequests = () => {
         abortControllers.delete(url);
     });
 };
+
+
+
 
 export default instance
